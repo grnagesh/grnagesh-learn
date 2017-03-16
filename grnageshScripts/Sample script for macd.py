@@ -109,12 +109,6 @@ class TheStrategy(bt.Strategy):
                 self.pstop = max(pstop, pclose - pdist)
 
 
-DATASETS = {
-    'yhoo': '../../datas/yhoo-1995-2014.txt',
-    'orcl': '../../datas/orcl-1995-2014.txt',
-    'nvda': '../../datas/nvda-1999-2014.txt',
-}
-
 DATATYPE = {
     'Eq': "",
     'Com': "",
@@ -141,68 +135,17 @@ def runstrat(args=None):
         todate = datetime.datetime.strptime(args.todate, '%Y-%m-%d')
         dkwargs['todate'] = todate
 
-    # if dataset is None, args.data has been given
-    dataname = DATASETS.get(args.dataset, args.data)
-    #data0 = OhlcTemplates.CommodityOHLC(dataname=dataname)
-    #data0 = OhlcTemplates.EquityOHLC(dataname=dataname)
-    data0 = OhlcTemplates.CurrencyOHLC(dataname=dataname)
+        # if dataset is None, args.data has been given
+        dataname = args.data
 
+        if (args.EqComCur) == 'Eq':
+            data0 = OhlcTemplates.EquityOHLC(dataname=dataname)
+        elif (args.EqComCur) == 'Com':
+            data0 = OhlcTemplates.CommodityOHLC(dataname=dataname)
+        elif (args.EqComCur) == 'Cur':
+            data0 = OhlcTemplates.CurrencyOHLC(dataname=dataname)
 
-    EqComCur = DATATYPE.get(args.dataset, args.data)
-
-    print("EqComCur:", EqComCur)
-    # lets assign some value to make sure we dont get unbound error
-    # data0 = btfeed.GenericCSVData(
-    #     #dataname='C:\\Users\\ngonibed\\Downloads\\COMMODITY\\NaturalGas.csv',
-    #     dataname=dataname,
-    #     fromdate=datetime.datetime(2006, 8, 21),
-    #     todate=datetime.datetime(2016, 6, 27),
-    #     nullvalue=0.0,
-    #     dtformat=('%m/%d/%Y'),
-    #     datetime=0,
-    #     high=4,
-    #     low=5,
-    #     open=3,
-    #     close=6,
-    #     volume=8,
-    #     openinterest=11
-    # )
-
-    # if (EqComCur == 'Com'):
-    #     data0 = btfeed.GenericCSVData(
-    #         #dataname='C:\\Users\\ngonibed\\Downloads\\COMMODITY\\NaturalGas.csv',
-    #         dataname=dataname,
-    #         fromdate=datetime.datetime(2006, 8, 21),
-    #         todate=datetime.datetime(2016, 6, 27),
-    #         nullvalue=0.0,
-    #         dtformat=('%m/%d/%Y'),
-    #         datetime=0,
-    #         high=4,
-    #         low=5,
-    #         open=3,
-    #         close=6,
-    #         volume=8,
-    #         openinterest=11
-    #     )
-    # elif (EqComCur == 'Eq'):
-    #     data0 = btfeed.GenericCSVData(
-    #         dataname= dataname,
-    #         fromdate=datetime.datetime(2015, 3, 15),
-    #         todate=datetime.datetime(2017, 3, 7),
-    #         nullvalue=0.0,
-    #         dtformat=('%d-%b-%y'),
-    #         datetime=2,
-    #         high=5,
-    #         low=6,
-    #         open=4,
-    #         close=8,
-    #         volume=10
-    #     )
-
-    #data0 = bt.feeds.BacktraderCSVData(dataname=dataname, **dkwargs)
-
-   
-    cerebro.adddata(data0)
+        cerebro.adddata(data0)
 
     cerebro.addstrategy(TheStrategy,
                         macd1=args.macd1, macd2=args.macd2,
@@ -257,11 +200,6 @@ def parse_args(pargs=None):
     group1 = parser.add_mutually_exclusive_group(required=True)
     group1.add_argument('--data', required=False, default=None,
                         help='Specific data to be read in')
-
-
-    group1.add_argument('--dataset', required=False, action='store',
-                        default=None, choices=DATASETS.keys(),
-                        help='Choose one of the predefined data sets')
 
     parser.add_argument('--EqComCur', required=False, action='store',
                         default=None, choices=DATATYPE.keys(),
